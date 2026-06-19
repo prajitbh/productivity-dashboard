@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: serif;
+  --font-body: sans-serif;
+  --font-mono: monospace;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: #f7f3e9;
+}
+
+/* Ledger page: ruled horizontal lines behind a list of entries */
+.ledger-page {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 47px,
+    #e3dcc8 47px,
+    #e3dcc8 48px
+  );
+}
+
+.ledger-line {
+  border-bottom: 1px solid #e3dcc8;
+}
+
+/* Stamped checkbox used for tasks + habits, styled like an ink stamp rather than a checkbox */
+.stamp {
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  border: 1.5px solid #1b3a4b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s ease, background-color 0.12s ease;
+  flex-shrink: 0;
+}
+
+.stamp[data-checked="true"] {
+  background-color: #1b3a4b;
+  transform: rotate(-3deg) scale(1.04);
+}
+
+.stamp[data-checked="true"]::after {
+  content: "✓";
+  color: #f7f3e9;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp {
+    transition: none;
+  }
+}
+
+/* Visible keyboard focus across interactive elements */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #d98e3b;
+  outline-offset: 2px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #e3dcc8;
+  border-radius: 3px;
+}
