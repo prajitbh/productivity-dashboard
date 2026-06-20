@@ -29,8 +29,27 @@ function weekRange() {
 }
 
 export default async function HomePage() {
-  const session = await getServerSession(authOptions);
-  const accessToken = (session as any)?.accessToken as string | undefined;
+  // Only touch NextAuth at all if Outlook creds are actually configured.
+  // NextAuth throws in production if NEXTAUTH_SECRET is missing — which it
+  // will be for anyone who hasn't set up Outlook sync yet — so we skip it
+  // entirely rather than letting an unconfigured optional feature take down
+  // the whole Home page. The try/catch is a second safety net in case any
+  // of the other three Azure vars are missing or malformed.
+  const outlookConfigured = !!(
+    process.env.AZURE_AD_CLIENT_ID &&
+    process.env.AZURE_AD_CLIENT_SECRET &&
+    process.env.NEXTAUTH_SECRET
+  );
+
+  let accessToken: string | undefined;
+  if (outlookConfigured) {
+    try {
+      const session = await getServerSession(authOptions);
+      accessToken = (session as any)?.accessToken;
+    } catch (err) {
+      console.error("Outlook session lookup failed, continuing without it:", err);
+    }
+  }
 
   const today = toDateStr(new Date());
   const { monday, sunday } = weekRange();
