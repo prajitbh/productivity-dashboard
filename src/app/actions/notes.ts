@@ -42,6 +42,11 @@ export async function updateNote(id: number, formData: FormData) {
 
 export async function resizeNote(id: number, width: number, height: number) {
   await db.update(notes).set({ width, height }).where(eq(notes.id, id));
+  // Deliberately no revalidatePath here: resizing is a cosmetic, per-note
+  // preference. Triggering a page refresh mid-drag re-renders the note with
+  // its last-saved (smaller) size via React's style prop, fighting the
+  // browser's live resize and snapping it back. The size still persists to
+  // the database fine — it'll just be picked up next time the page loads.
 }
 
 export async function togglePinNote(id: number, pinned: boolean) {

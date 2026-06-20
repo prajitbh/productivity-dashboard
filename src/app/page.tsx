@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { db } from "@/db";
 import { tasks, goals, habits, habitLogs, notes } from "@/db/schema";
 import { eq, ne, desc } from "drizzle-orm";
