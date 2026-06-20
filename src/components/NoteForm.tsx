@@ -2,38 +2,42 @@
 
 import { useRef, useState } from "react";
 import { createNote } from "@/app/actions/notes";
+import RichTextEditor from "./RichTextEditor";
 
 export default function NoteForm() {
-  const formRef = useRef<HTMLFormElement>(null);
   const [expanded, setExpanded] = useState(false);
+  const [title, setTitle] = useState("");
+  const [html, setHtml] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
+
+  async function save() {
+    const fd = new FormData();
+    fd.set("title", title);
+    fd.set("contentHtml", html);
+    await createNote(fd);
+    setTitle("");
+    setHtml("");
+    setExpanded(false);
+  }
 
   return (
-    <form
-      ref={formRef}
-      action={async (formData) => {
-        await createNote(formData);
-        formRef.current?.reset();
-        setExpanded(false);
-      }}
-      className="border border-paper-line rounded-md bg-paper-raised p-3"
-    >
+    <div className="border border-paper-line rounded-md bg-paper-raised p-3">
       <input
-        name="title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
         placeholder="New note title…"
         onFocus={() => setExpanded(true)}
         className="w-full bg-transparent text-sm placeholder:text-ink-faint outline-none font-medium"
       />
       {expanded && (
         <>
-          <textarea
-            name="content"
-            placeholder="Write it down…"
-            rows={3}
-            className="w-full bg-transparent text-sm placeholder:text-ink-faint outline-none mt-2"
-          />
+          <div className="mt-2">
+            <RichTextEditor defaultHtml="" onChangeHtml={setHtml} placeholder="Write it down…" />
+          </div>
           <div className="flex justify-end mt-2">
             <button
-              type="submit"
+              type="button"
+              onClick={save}
               className="bg-ink text-paper rounded px-3 py-1.5 text-xs font-medium hover:bg-ink/90"
             >
               Save note
@@ -41,6 +45,6 @@ export default function NoteForm() {
           </div>
         </>
       )}
-    </form>
+    </div>
   );
 }

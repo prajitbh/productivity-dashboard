@@ -3,6 +3,8 @@
 import { useState, useTransition } from "react";
 import { Task } from "@/db/schema";
 import { setTaskStatus, deleteTask } from "@/app/actions/tasks";
+import { playPopSound } from "@/lib/sound";
+import { recurrenceLabel, Recurrence } from "@/lib/recurrence";
 
 const priorityColor: Record<string, string> = {
   high: "text-brick",
@@ -24,12 +26,35 @@ function formatDue(dueDate: string | null) {
   return { label, overdue: false };
 }
 
+async function celebrate() {
+  playPopSound();
+  const confetti = (await import("canvas-confetti")).default;
+  confetti({
+    particleCount: 60,
+    spread: 55,
+    startVelocity: 28,
+    origin: { y: 0.7 },
+    colors: ["#b9883f", "#8a9a5b", "#4f5e3c", "#3f2f20", "#d2b48c"],
+    scalar: 0.8,
+  });
+}
+
 export default function TaskRow({
   task,
   goalTitle,
+  draggable = false,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  dragging = false,
 }: {
   task: Task;
   goalTitle?: string | null;
+  draggable?: boolean;
+  onDragStart?: () => void;
+  onDragOver?: (e: React.DragEvent) => void;
+  onDrop?: () => void;
+  dragging?: boolean;
 }) {
   const [pending, startTransition] = useTransition();
   const [optimisticDone, setOptimisticDone] = useState(task.status === "done");
@@ -38,13 +63,25 @@ export default function TaskRow({
   function toggle() {
     const next = !optimisticDone;
     setOptimisticDone(next);
+    if (next) celebrate();
     startTransition(async () => {
       await setTaskStatus(task.id, next ? "done" : "todo");
     });
   }
 
   return (
-    <div className="group flex items-start gap-3 py-2.5 ledger-line">
+    <div
+      draggable={draggable}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+      className={`group flex items-start gap-3 py-2.5 ledger-line ${
+        dragging ? "opacity-40" : ""
+      } ${draggable ? "cursor-grab active:cursor-grabbing" : ""}`}
+    >
+      {draggable && (
+        <span className="text-ink-faint text-xs mt-1 opacity-0 group-hover:opacity-100 select-none">⋮⋮</span>
+      )}
       <button
         type="button"
         onClick={toggle}
@@ -71,6 +108,9 @@ export default function TaskRow({
             </span>
           )}
           {goalTitle && <span className="text-ink-faint">· {goalTitle}</span>}
+          {task.recurrence && (
+            <span className="text-sage">· ↻ {recurrenceLabel[task.recurrence as Recurrence]}</span>
+          )}
         </div>
       </div>
       <button

@@ -1,27 +1,28 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
     extend: {
       colors: {
-        ink: "#1B3A4B",
-        "ink-soft": "#5C7080",
-        "ink-faint": "#8FA0A8",
-        paper: "#F7F3E9",
-        "paper-raised": "#FCFAF4",
-        "paper-line": "#E3DCC8",
+        ink: "var(--color-ink)",
+        "ink-soft": "var(--color-ink-soft)",
+        "ink-faint": "var(--color-ink-faint)",
+        paper: "var(--color-paper)",
+        "paper-raised": "var(--color-paper-raised)",
+        "paper-line": "var(--color-paper-line)",
         amber: {
-          DEFAULT: "#D98E3B",
-          soft: "#F0D9B5",
+          DEFAULT: "#b9883f",
+          soft: "#e9d8b0",
         },
         sage: {
-          DEFAULT: "#7C9885",
-          soft: "#DCE6DF",
+          DEFAULT: "#8a9a5b",
+          soft: "#dde3c9",
         },
         brick: {
-          DEFAULT: "#B5533C",
-          soft: "#EAD2C8",
+          DEFAULT: "#4f5e3c",
+          soft: "#d6dac9",
         },
       },
       fontFamily: {
@@ -31,7 +32,7 @@ const config: Config = {
       },
       backgroundImage: {
         "ledger-rule":
-          "repeating-linear-gradient(to bottom, transparent, transparent 39px, #E3DCC8 39px, #E3DCC8 40px)",
+          "repeating-linear-gradient(to bottom, transparent, transparent 39px, #D2B48C 39px, #D2B48C 40px)",
       },
     },
   },

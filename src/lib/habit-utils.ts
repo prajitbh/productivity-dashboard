@@ -38,3 +38,58 @@ export function weekday(dateStr: string): string {
   const d = new Date(dateStr + "T00:00:00");
   return d.toLocaleDateString("en-US", { weekday: "short" }).slice(0, 1);
 }
+
+/** Longest run of consecutive logged days in the habit's whole history. */
+export function bestStreak(loggedDates: string[]): number {
+  if (loggedDates.length === 0) return 0;
+  const sorted = [...new Set(loggedDates)].sort();
+  let best = 1;
+  let run = 1;
+  for (let i = 1; i < sorted.length; i++) {
+    const prev = new Date(sorted[i - 1] + "T00:00:00");
+    const cur = new Date(sorted[i] + "T00:00:00");
+    const diffDays = Math.round((cur.getTime() - prev.getTime()) / 86400000);
+    run = diffDays === 1 ? run + 1 : 1;
+    if (run > best) best = run;
+  }
+  return best;
+}
+
+/** % of the last n days that were logged. */
+export function completionRate(loggedDates: string[], n: number): number {
+  const days = lastNDays(n);
+  const logged = new Set(loggedDates);
+  const count = days.filter((d) => logged.has(d)).length;
+  return Math.round((count / n) * 100);
+}
+
+/** Buckets the last `weeks` weeks (Mon-Sun) into { label, count } for a simple bar chart. */
+export function weeklyBuckets(
+  loggedDates: string[],
+  weeks: number
+): { label: string; count: number }[] {
+  const logged = new Set(loggedDates);
+  const now = new Date();
+  // Find this week's Monday
+  const dow = now.getDay(); // 0 = Sun
+  const mondayOffset = dow === 0 ? -6 : 1 - dow;
+  const thisMonday = new Date(now);
+  thisMonday.setDate(now.getDate() + mondayOffset);
+
+  const buckets: { label: string; count: number }[] = [];
+  for (let w = weeks - 1; w >= 0; w--) {
+    const weekStart = new Date(thisMonday);
+    weekStart.setDate(thisMonday.getDate() - w * 7);
+    let count = 0;
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(weekStart);
+      d.setDate(weekStart.getDate() + i);
+      if (logged.has(toDateStr(d))) count++;
+    }
+    buckets.push({
+      label: weekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      count,
+    });
+  }
+  return buckets;
+}

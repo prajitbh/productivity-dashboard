@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { notes } from "@/db/schema";
-import { desc } from "drizzle-orm";
+import { desc, isNull } from "drizzle-orm";
 import PageHeader from "@/components/PageHeader";
 import NoteForm from "@/components/NoteForm";
 import NoteCard from "@/components/NoteCard";
@@ -8,13 +8,17 @@ import NoteCard from "@/components/NoteCard";
 export const dynamic = "force-dynamic";
 
 export default async function NotesPage() {
-  const allNotes = await db.select().from(notes).orderBy(desc(notes.updatedAt));
+  const allNotes = await db
+    .select()
+    .from(notes)
+    .where(isNull(notes.tabKey))
+    .orderBy(desc(notes.updatedAt));
   const pinned = allNotes.filter((n) => n.pinned);
   const rest = allNotes.filter((n) => !n.pinned);
 
   return (
     <div>
-      <PageHeader entry="05" title="Notes" subtitle="Margin notes for everything else." />
+      <PageHeader entry="08" title="Notes" subtitle="Margin notes for everything else." />
       <div className="px-6 sm:px-10 py-8 max-w-4xl space-y-8">
         <div className="max-w-2xl">
           <NoteForm />

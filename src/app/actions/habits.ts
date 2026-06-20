@@ -15,17 +15,18 @@ export async function createHabit(formData: FormData) {
 
   const color = String(formData.get("color") || "sage");
   const targetPerWeek = Number(formData.get("targetPerWeek") || 7);
+  const category = String(formData.get("category") || "general");
 
-  await db.insert(habits).values({ name, color, targetPerWeek });
+  await db.insert(habits).values({ name, color, targetPerWeek, category });
 
   revalidatePath("/");
-  revalidatePath("/habits");
+  revalidatePath("/habits", "layout");
 }
 
 export async function archiveHabit(id: number) {
   await db.update(habits).set({ archived: true }).where(eq(habits.id, id));
   revalidatePath("/");
-  revalidatePath("/habits");
+  revalidatePath("/habits", "layout");
 }
 
 export async function toggleHabitToday(habitId: number) {
@@ -47,5 +48,5 @@ export async function toggleHabitForDate(habitId: number, date: string) {
   }
 
   revalidatePath("/");
-  revalidatePath("/habits");
+  revalidatePath("/habits", "layout");
 }

@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { createGoal } from "@/app/actions/goals";
+import DatePicker from "./DatePicker";
 
 export default function GoalForm() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -34,11 +35,7 @@ export default function GoalForm() {
           />
           <div className="flex items-center gap-2">
             <label className="text-xs font-mono text-ink-soft">Target date</label>
-            <input
-              type="date"
-              name="targetDate"
-              className="bg-paper border border-paper-line rounded px-2 py-1 font-mono text-xs text-ink-soft"
-            />
+            <DatePicker name="targetDate" label="target date" />
             <div className="flex-1" />
             <button
               type="submit"

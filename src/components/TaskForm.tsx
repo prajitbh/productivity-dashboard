@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { createTask } from "@/app/actions/tasks";
 import { Goal } from "@/db/schema";
+import DatePicker from "./DatePicker";
 
 export default function TaskForm({ goals }: { goals: Goal[] }) {
   const formRef = useRef<HTMLFormElement>(null);
@@ -36,11 +37,18 @@ export default function TaskForm({ goals }: { goals: Goal[] }) {
             <option value="medium">medium</option>
             <option value="high">high</option>
           </select>
-          <input
-            type="date"
-            name="dueDate"
+          <DatePicker name="dueDate" />
+          <select
+            name="recurrence"
+            defaultValue=""
             className="bg-paper border border-paper-line rounded px-2 py-1 font-mono text-ink-soft"
-          />
+          >
+            <option value="">doesn't repeat</option>
+            <option value="daily">repeats daily</option>
+            <option value="weekdays">repeats weekdays</option>
+            <option value="weekly">repeats weekly</option>
+            <option value="monthly">repeats monthly</option>
+          </select>
           {goals.length > 0 && (
             <select
               name="goalId"

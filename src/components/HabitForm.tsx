@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { createHabit } from "@/app/actions/habits";
 
-export default function HabitForm() {
+export default function HabitForm({ category = "general" }: { category?: string }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [expanded, setExpanded] = useState(false);
 
@@ -17,6 +17,7 @@ export default function HabitForm() {
       }}
       className="border border-paper-line rounded-md bg-paper-raised p-3"
     >
+      <input type="hidden" name="category" value={category} />
       <input
         name="name"
         placeholder="Name a habit to keep…"

@@ -6,14 +6,46 @@
   --font-display: serif;
   --font-body: sans-serif;
   --font-mono: monospace;
+
+  /* Café Noir / Kombu Green / Moss Green / Tan / Bone palette */
+  --color-ink: #3f2f20;
+  --color-ink-soft: #715c47;
+  --color-ink-faint: #a3927c;
+  --color-paper: #e7decd;
+  --color-paper-raised: #f0e9db;
+  --color-paper-line: #d2b48c;
+}
+
+.dark {
+  --color-ink: #e9e1d2;
+  --color-ink-soft: #bcae97;
+  --color-ink-faint: #84765f;
+  --color-paper: #211a13;
+  --color-paper-raised: #2a2218;
+  --color-paper-line: #3f3424;
 }
 
 * {
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  /* Smooth cross-fade whenever the theme variables above change. */
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
 body {
-  background-color: #f7f3e9;
+  background-color: var(--color-paper);
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Make sure every element that uses these tokens fades too, not just body */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
 }
 
 /* Ledger page: ruled horizontal lines behind a list of entries */
@@ -22,13 +54,13 @@ body {
     to bottom,
     transparent,
     transparent 47px,
-    #e3dcc8 47px,
-    #e3dcc8 48px
+    var(--color-paper-line) 47px,
+    var(--color-paper-line) 48px
   );
 }
 
 .ledger-line {
-  border-bottom: 1px solid #e3dcc8;
+  border-bottom: 1px solid var(--color-paper-line);
 }
 
 /* Stamped checkbox used for tasks + habits, styled like an ink stamp rather than a checkbox */
@@ -36,7 +68,7 @@ body {
   width: 22px;
   height: 22px;
   border-radius: 3px;
-  border: 1.5px solid #1b3a4b;
+  border: 1.5px solid var(--color-ink);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -45,13 +77,13 @@ body {
 }
 
 .stamp[data-checked="true"] {
-  background-color: #1b3a4b;
+  background-color: var(--color-ink);
   transform: rotate(-3deg) scale(1.04);
 }
 
 .stamp[data-checked="true"]::after {
   content: "✓";
-  color: #f7f3e9;
+  color: var(--color-paper);
   font-size: 14px;
   font-weight: 600;
 }
@@ -68,7 +100,7 @@ button:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid #d98e3b;
+  outline: 2px solid #8a9a5b;
   outline-offset: 2px;
 }
 
@@ -80,6 +112,37 @@ textarea {
   width: 6px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: #e3dcc8;
+  background-color: var(--color-paper-line);
   border-radius: 3px;
+}
+
+.rich-text-area:empty:before {
+  content: attr(data-placeholder);
+  color: var(--color-ink-faint);
+}
+
+.rich-text-area ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+.rich-text-area ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
+.rich-text-area h3 {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  margin: 0.25rem 0;
+}
+.rich-text-area b,
+.rich-text-area strong {
+  font-weight: 600;
+}
+
+/* Resize handle for notes */
+.resizable-note {
+  resize: both;
+  overflow: auto;
+  min-width: 220px;
+  min-height: 140px;
 }

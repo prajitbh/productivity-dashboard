@@ -1,35 +1,42 @@
 import { db } from "@/db";
 import { tasks, goals } from "@/db/schema";
-import { desc } from "drizzle-orm";
+import { desc, asc } from "drizzle-orm";
 import PageHeader from "@/components/PageHeader";
 import TaskForm from "@/components/TaskForm";
 import TaskRow from "@/components/TaskRow";
+import TaskListDnd from "@/components/TaskListDnd";
+import SubtaskList from "@/components/SubtaskList";
 
 export const dynamic = "force-dynamic";
 
 export default async function TasksPage() {
   const [allTasks, allGoals] = await Promise.all([
-    db.select().from(tasks).orderBy(desc(tasks.createdAt)),
+    db.select().from(tasks).orderBy(asc(tasks.sortOrder), desc(tasks.createdAt)),
     db.select().from(goals),
   ]);
 
   const goalTitleById = new Map(allGoals.map((g) => [g.id, g.title]));
 
-  const open = allTasks
-    .filter((t) => t.status !== "done")
-    .sort((a, b) => {
-      const ad = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
-      const bd = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
-      return ad - bd;
-    });
-  const done = allTasks.filter((t) => t.status === "done");
+  // Subtasks render nested under their parent rather than as standalone rows.
+  const subtasksByParent = new Map<number, typeof allTasks>();
+  for (const t of allTasks) {
+    if (t.parentTaskId) {
+      const arr = subtasksByParent.get(t.parentTaskId) ?? [];
+      arr.push(t);
+      subtasksByParent.set(t.parentTaskId, arr);
+    }
+  }
+
+  const topLevel = allTasks.filter((t) => !t.parentTaskId);
+  const open = topLevel.filter((t) => t.status !== "done");
+  const done = topLevel.filter((t) => t.status === "done");
 
   return (
     <div>
       <PageHeader
         entry="02"
         title="Tasks"
-        subtitle="Every line is a commitment. Stamp it when it's settled."
+        subtitle="Every line is a commitment. Drag to reorder, stamp it when it's settled."
       />
       <div className="px-6 sm:px-10 py-8 max-w-2xl space-y-8">
         <TaskForm goals={allGoals} />
@@ -43,11 +50,7 @@ export default async function TasksPage() {
               Nothing outstanding. Add a line above to start the day's ledger.
             </p>
           ) : (
-            <div>
-              {open.map((t) => (
-                <TaskRow key={t.id} task={t} goalTitle={t.goalId ? goalTitleById.get(t.goalId) : null} />
-              ))}
-            </div>
+            <TaskListDnd tasks={open} goalTitleById={goalTitleById} subtasksByParent={subtasksByParent} />
           )}
         </section>
 
@@ -58,7 +61,10 @@ export default async function TasksPage() {
             </h2>
             <div>
               {done.map((t) => (
-                <TaskRow key={t.id} task={t} goalTitle={t.goalId ? goalTitleById.get(t.goalId) : null} />
+                <div key={t.id}>
+                  <TaskRow task={t} goalTitle={t.goalId ? goalTitleById.get(t.goalId) : null} />
+                  <SubtaskList parentTask={t} subtasks={subtasksByParent.get(t.id) ?? []} />
+                </div>
               ))}
             </div>
           </section>
