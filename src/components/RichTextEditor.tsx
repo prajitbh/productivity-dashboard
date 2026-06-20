@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 const buttons: { cmd: string; label: string; arg?: string }[] = [
   { cmd: "bold", label: "B" },
@@ -25,6 +25,15 @@ export default function RichTextEditor({
   autoFocus?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+
+  // Set the starting content exactly once, on mount. Re-applying it on every
+  // render (e.g. via dangerouslySetInnerHTML tied to React state) would wipe
+  // out live typing and reset the cursor on every keystroke, since the parent
+  // re-renders in response to onInput firing.
+  useEffect(() => {
+    if (ref.current) ref.current.innerHTML = defaultHtml;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function exec(cmd: string, arg?: string) {
     ref.current?.focus();
@@ -57,7 +66,6 @@ export default function RichTextEditor({
         autoFocus={autoFocus}
         data-placeholder={placeholder}
         onInput={(e) => onChangeHtml((e.target as HTMLDivElement).innerHTML)}
-        dangerouslySetInnerHTML={{ __html: defaultHtml }}
         className="rich-text-area px-3 py-2 text-sm text-ink outline-none"
         style={{ minHeight }}
       />
